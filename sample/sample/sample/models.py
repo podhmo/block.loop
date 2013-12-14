@@ -28,5 +28,10 @@ class MyModel(Base):
         self.name = name
         self.value = value
 
+class User(Base):
+    __tablename__ = 'users'
+    id = Column(Integer, primary_key=True)
+    name = Column(Text)
+
 Index('my_index', MyModel.name, unique=True, mysql_length=255)
 
