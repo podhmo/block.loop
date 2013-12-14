@@ -9,7 +9,7 @@ sample ::
     from .schema import UserSchema
     from .models import User
 
-    loop = (view_oop()
+    loop = (view_loop()
      .add(get_model(model=User)), 
      .add(schema_validation(schema=UserSchema)), 
      .add(update_user))

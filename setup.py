@@ -7,11 +7,11 @@ py3 = sys.version_info.major >= 3
 version = '0.0'
 
 requires = [
-    "sqlalchemy",
     "setuptools",
 ]
 
 tests_require = [
+    "pyramid",
 ]
 
 long_description = "\n".join(open(f).read() for f in  ["README.rst", "CHANGES.txt"])
