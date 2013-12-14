@@ -191,3 +191,6 @@ class LoopViewConstractMeta(type):
         view.__doc__ = attrs.get("__doc__")
         return view
 
+def view_loop():
+    return Loop(strategy=ViewLoopStrategy(store_factory=PylonsLikeStorage))
+

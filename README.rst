@@ -5,11 +5,11 @@ a experimental approach, creating pyramid's view via method chain.
 
 sample ::
 
-    from block.loop import Loop, ViewFromLoop
+    from block.loop import view_loop, ViewFromLoop
     from .schema import UserSchema
     from .models import User
 
-    loop = (Loop()
+    loop = (view_oop()
      .add(get_model(model=User)), 
      .add(schema_validation(schema=UserSchema)), 
      .add(update_user))
