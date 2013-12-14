@@ -117,24 +117,33 @@ class PylonsLikeStorage(object):
     def asdict(self):
         return self.__dict__
 
+def as_dict_or_response(response):
+    if hasattr(response, "asdict"):
+        return response.asdict()
+    else:
+        return response
+
 class ViewFromLoop(object):
-    def __init__(self, loop):
+    def __init__(self, loop, name=""):
         self.loop = loop
+        self.__name__ = name
+
+    @property
+    def __name__(self):
+        return self.loop.__name__
 
     def __call__(self, *args, **kwargs):
         response = self.loop.run(*args, **kwargs)
-        if hasattr(response, "asdict"):
-            return response.asdict()
-        else:
-            return response
+        return as_dict_or_response(response)
 
     def __repr__(self):
         return "{self.__class__.__name__!r}: {self.__name__!r}".format(self=self)
 
 class ViewFromLoopForLazy(object):
-    def __init__(self, loop):
+    def __init__(self, loop, name=""):
         self.loop = copy(loop)
         self.original_factory = self.loop.strategy.store_factory
+        self.__name__ = name
 
     def for_lazy(self, context, request):
         c = self.original_factory()
@@ -142,13 +151,13 @@ class ViewFromLoopForLazy(object):
         c.request = request
         return c
 
+    def dispose(self, c):
+        del c.context
+
     def __call__(self, context, request, *args, **kwargs):
         self.loop.strategy.store_factory = partial(self.for_lazy, context, request)
-        response = self.loop.run(*args, **kwargs)
-        if hasattr(response, "asdict"):
-            return response.asdict()
-        else:
-            return response
+        response = self.loop.add(self.dispose).run(*args, **kwargs)
+        return as_dict_or_response(response)
 
     def __repr__(self):
         return "{self.__class__.__name__!r}: {self.__name__!r}".format(self=self)
@@ -192,5 +201,6 @@ class LoopViewConstractMeta(type):
         return view
 
 def view_loop():
-    return Loop(strategy=ViewLoopStrategy(store_factory=PylonsLikeStorage))
+    loop = Loop(strategy=ViewLoopStrategy(store_factory=PylonsLikeStorage))
+    return loop
 
